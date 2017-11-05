@@ -1,0 +1,15 @@
+body {
+    background: white url("images/background.jpg") no-repeat right bottom;
+    text-align: center;
+}
+
+li , a{
+    font-size: 3vh;
+    list-style-type: none;
+    color: rgba(255,255,255,0.7);
+    text-decoration: none;
+}
+
+li a:hover {
+    color: #fff;
+}
