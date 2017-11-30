@@ -6,7 +6,8 @@ import json, requests
 from pprint import pprint
 import random
 
-page_access_token = 'EAAUDpluM64kBAHUIpJLUuZAQkLByg95Om3aR0QZADw9FBNkSUqCpN6RV56r6BLBHVMbzP99JQiRIaXDmVsjjhVYSt3HQMwZBqVyROE8ZAVTUdgWnxu7pm2Cxcp7JWecqxNLklxJTwwq0amnqmvCZBsIZABOos6XKdHkM3UlwCAndYZBoLHGWr9D'
+page_access_token = 'EAAUDpluM64kBAHUIpJLUuZAQkLByg95Om3aR0QZADw9FBNkSUqCpN6RV56r6BLBHVMbzP99JQiRIaXDmVsjjhVYSt3HQMw' \
+                    'ZBqVyROE8ZAVTUdgWnxu7pm2Cxcp7JWecqxNLklxJTwwq0amnqmvCZBsIZABOos6XKdHkM3UlwCAndYZBoLHGWr9D'
 
 class messengerBotView(generic.View):
     @method_decorator(csrf_exempt)
@@ -21,7 +22,6 @@ class messengerBotView(generic.View):
 
     def post(self, request, *args, **kwargs):
         incoming_message = json.loads(self.request.body.decode('utf-8'))
-        get_started()
         for entry in incoming_message['entry']:
             for message in entry['messaging']:
                 if 'message' in message:
@@ -29,9 +29,32 @@ class messengerBotView(generic.View):
                     if message['sender']['id'] != '351106498695933':
                         seen_message(message['sender']['id'])
                         typing_message(message['sender']['id'])
-                        post_facebook_message(message['sender']['id'], message['message']['text'], message['message'])
+                        post_facebook_message(message['sender']['id'], message['message'])
         return HttpResponse()
 
+def set_persistent_menu():
+    post_message_url = "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=" + page_access_token
+    response_msg = json.dumps({
+        "persistent_menu": [{
+            "call_to_actions": [
+                {
+                    "type": "postback",
+                    "title": "Get Started",
+                    "payload": "_PAYLOAD"
+                },
+                {
+                    "type": "web_url",
+                    "title": "Review",
+                    "url": "https://www.facebook.com/pg/Language-Bot-351106498695933/reviews/?ref=page_internal",
+                    "webview_height_ratio": "full"
+                }
+            ]
+        }]
+    })
+    status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+    pprint(status.json())
+
+#mark message as seen
 def seen_message(fbid):
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
     response_msg = json.dumps(
@@ -42,6 +65,7 @@ def seen_message(fbid):
     status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
     pprint(status.json())
 
+#mark as typing
 def typing_message(fbid):
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
     response_msg = json.dumps(
@@ -58,11 +82,29 @@ def firstEntity(nlp, name):
     except:
         return 0
 
-def post_facebook_message(fbid, received_message, message):
+#get details of the user like first name,last name, profile picture etc
+def get_user_details(fbid):
+    get_started()
+    set_persistent_menu()
     user_details_url = "https://graph.facebook.com/v2.6/%s" % fbid
     user_details_params = {'fields': 'first_name,last_name', 'access_token': page_access_token}
-    user_details = requests.get(user_details_url, user_details_params).json()
+    return requests.get(user_details_url, user_details_params).json()
+
+def post_facebook_message(fbid, message):
+    user_details = get_user_details(fbid)
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
+    #check whether the received message is text or an attachment
+    try:
+        received_message =  message['text']
+    except:
+        response_msg = json.dumps(
+            {
+                "recipient": {"id": fbid},
+                "message":  {"text": ":)"}
+                            })
+        status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+        pprint(status.json())
+        return 0
     response_msg = json.dumps(
         {
          "recipient": {"id": fbid},
@@ -121,7 +163,7 @@ def post_facebook_message(fbid, received_message, message):
                 "text": random.choice(bye_message)
             }})
 
-    if received_message == "About":
+    if received_message == "About Bot":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -139,7 +181,88 @@ def post_facebook_message(fbid, received_message, message):
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": "Get ready to learn German! Currently available topics are: Months, Weekdays, Numbers.",
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Get ready to learn German!",
+                                "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/b/ba/Flag_of_Germany.svg/1200px-Flag_of_Germany.svg.png",
+                                "subtitle": "Choose from the following"
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "German culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "German Tracks",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+
+    if received_message == "German culture":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Germany",
+                                "image_url": 'http://www.middlebury.edu/system/files/media/Germany%20031%20bright.jpg',
+                                "subtitle": 'Germany; German: Deutschland, officially the Federal Republic of'\
+                                            ' Germany (German: Bundesrepublik Deutschland),is a federal'\
+                                            ' parliamentary republic in central-western Europe.',
+                                "buttons":[
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://en.wikipedia.org/wiki/Germany",
+                                        "title": "Read More"
+                                    }
+                                ]
+        }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "German culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "German Tracks",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+
+    if received_message == "German Tracks":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Choose from the following:",
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -168,7 +291,7 @@ def post_facebook_message(fbid, received_message, message):
         response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": weekdays}})
 
     if received_message == "Numbers":
-        numbers =" \n 1	eins \n 2	zwei \n 3	drei \n 4	vier \n 5	funf \n 6	sechs\n 7	sieben \n 8	acht \n 9	neun \n 10	zehn"
+        numbers =" 1	eins \n 2	zwei \n 3	drei \n 4	vier \n 5	funf \n 6	sechs\n 7	sieben \n 8	acht \n 9	neun \n 10	zehn"
         response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": numbers}})
 
     if received_message == "Help":
@@ -179,27 +302,12 @@ def post_facebook_message(fbid, received_message, message):
                 "quick_replies": [
                     {
                         "content_type": "text",
-                        "title": "About",
+                        "title": "About Bot",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
                     {
                         "content_type": "text",
                         "title": "German",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "Months",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "Weekdays",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "Numbers",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
