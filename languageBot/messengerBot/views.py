@@ -34,7 +34,6 @@ class messengerBotView(generic.View):
 
 
 def set_persistent_menu():
-    global lang
     post_message_url = "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=" + page_access_token
     response_msg = json.dumps({
         "persistent_menu": [{
@@ -177,7 +176,7 @@ def post_facebook_message(fbid, message):
             }
         })
 
-    if received_message == "/About Bot":
+    if received_message == "/About Bot" or received_message == "/about bot":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -192,7 +191,7 @@ def post_facebook_message(fbid, message):
                 ]
             }})
 
-    if received_message == "/German":
+    if received_message == "/German" or received_message == "/german":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -229,7 +228,7 @@ def post_facebook_message(fbid, message):
                 ]
             }})
 
-    if received_message == "German culture":
+    if received_message == "German culture" or received_message == "german culture":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -274,13 +273,13 @@ def post_facebook_message(fbid, message):
                 ]
             }})
 
-    if received_message == 'Translate in German':
+    if received_message == 'Translate in German' or received_message == "translate in german":
         global lang
         lang = 'de'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text" : 'Send what you want to translate and we will do it for you! To begin, start with any of the '
+                "text" : 'Send what you want to translate and we will do it for you! To exit translation mode, type "/Exit Translation" To begin, start with any of the '
                          'following:',
                 "quick_replies": [
                     {
@@ -297,12 +296,39 @@ def post_facebook_message(fbid, message):
                         "content_type": "text",
                         "title": 'Have a great day!',
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Tanslation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }
         })
 
-    if received_message == "/German Tracks":
+    if received_message == '/Exit Translation' or received_message == "/exit translation":
+        global lang
+        lang = ''
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text" : 'You have exited the translation mode.',
+                "quick_replies" : [
+                    {
+                        "content_type": "text",
+                        "title": "/About Bot",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type" : "text",
+                        "title" : "/German",
+                        "payload" : "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message == "German Tracks" or received_message == "german tracks":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -326,22 +352,22 @@ def post_facebook_message(fbid, message):
                 ]
             }})
 
-    if received_message == "/Months":
+    if received_message == "/Months" or received_message == "/months":
         months = "The months are:\n Januar, Februar, Marz, April, Mai, Juni, Juli, August, September, Oktober, "\
                  "November, Dezember"
         response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": months}})
 
-    if received_message == "/Weekdays":
+    if received_message == "/Weekdays" or received_message == "/weekdays":
         weekdays = "The weekdays are:\n Montag (Monday) \n Dienstag (Tuesday) \n Mittwoch (Wednesday) \n Donnerstag " \
                    " (Thursday) \n Freitag (Friday) \n Samstag (Saturday) \n Sonntag (Sunday)"
         response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": weekdays}})
 
-    if received_message == "/Numbers":
+    if received_message == "/Numbers" or received_message == "/numbers":
         numbers =" 1	eins \n 2	zwei \n 3	drei \n 4	vier \n 5	funf \n 6	sechs\n 7	sieben \n 8	acht \n 9" \
                  "	neun \n 10	zehn"
         response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": numbers}})
 
-    if received_message == "/Help":
+    if received_message == "/Help" or received_message == "/help":
         response_msg = json.dumps({
             "recipient": {"id" : fbid},
             "message" : {
