@@ -6,16 +6,17 @@ import json, requests, random
 from pprint import pprint
 from googletrans import Translator
 
-page_access_token = 'EAAUDpluM64kBAHUIpJLUuZAQkLByg95Om3aR0QZADw9FBNkSUqCpN6RV56r6BLBHVMbzP99JQiRIaXDmVsjjhVYSt3HQMw' \
-                    'ZBqVyROE8ZAVTUdgWnxu7pm2Cxcp7JWecqxNLklxJTwwq0amnqmvCZBsIZABOos6XKdHkM3UlwCAndYZBoLHGWr9D'
+page_access_token = <page_access_token>
 lang = ''
+quiz =  False
+answer = ''
 
 class messengerBotView(generic.View):
     @method_decorator(csrf_exempt)
     def dispatch(self, request, *args, **kwargs):
         return generic.View.dispatch(self, request, *args, **kwargs)
     def get(self, request, *args, **kwargs):
-        if self.request.GET.get('hub.verify_token', '') == '987654321':
+        if self.request.GET.get('hub.verify_token', '') == <verify_token>:
             return HttpResponse(self.request.GET.get('hub.challenge'))
         else:
             return HttpResponse('Error, invalid token')
@@ -222,11 +223,74 @@ def post_facebook_message(fbid, message):
                     },
                     {
                         "content_type": "text",
-                        "title": "German Tracks",
+                        "title": "Quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
+
+    if received_message == "quiz" or received_message == "Quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text" : 'What quiz will you like to play?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Numbers",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Months",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Days',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+
+    if quiz == True:
+        if received_message == answer:
+            response_msg = json.dumps({
+                "recipient": {"id": fbid},
+                "message": {
+                    "text": "Right answer! Type 'next' for next question or 'exit quiz' to stop the quiz ;)"
+                }
+            })
+        else:
+            response_msg = json.dumps({
+                "recipient": {"id": fbid},
+                "message": {
+                    "text": "Wrong answer! It's elf :\ Type 'next' for next question or 'exit quiz' to stop the quiz."
+                }
+            })
+
+    if received_message == 'exit quiz'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Okay. No more questions for you."
+            }
+        })
+        quiz = False
+
+    if received_message == "Numbers" or received_message == "numbers":
+        global quiz
+        quiz = True
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message" : {
+                "text" : "What is 11 called in German?"
+            }
+        })
+        global answer
+        answer = "elf"
 
     if received_message == "German culture" or received_message == "german culture":
         response_msg = json.dumps({
@@ -250,27 +314,24 @@ def post_facebook_message(fbid, message):
                                         "title": "Read More"
                                     }
                                 ]
+                            },
+                            {
+                                "title": "France",
+                                "image_url": 'http://www.middlebury.edu/system/files/media/Germany%20031%20bright.jpg',
+                                "subtitle": 'Germany; German: Deutschland, officially the Federal Republic of'
+                                            ' Germany (German: Bundesrepublik Deutschland),is a federal'
+                                            ' parliamentary republic in central-western Europe.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://en.wikipedia.org/wiki/Germany",
+                                        "title": "Read More"
+                                    }
+                                ]
                             }
                         ]
                     }
-                },
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "German culture",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "Translate in German",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "German Tracks",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
+                }
             }})
 
     if received_message == 'Translate in German' or received_message == "translate in german":
@@ -327,45 +388,6 @@ def post_facebook_message(fbid, message):
                 ]
             }
         })
-
-    if received_message == "German Tracks" or received_message == "german tracks":
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Choose from the following:",
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "/Months",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Weekdays",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Numbers",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }})
-
-    if received_message == "/Months" or received_message == "/months":
-        months = "The months are:\n Januar, Februar, Marz, April, Mai, Juni, Juli, August, September, Oktober, "\
-                 "November, Dezember"
-        response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": months}})
-
-    if received_message == "/Weekdays" or received_message == "/weekdays":
-        weekdays = "The weekdays are:\n Montag (Monday) \n Dienstag (Tuesday) \n Mittwoch (Wednesday) \n Donnerstag " \
-                   " (Thursday) \n Freitag (Friday) \n Samstag (Saturday) \n Sonntag (Sunday)"
-        response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": weekdays}})
-
-    if received_message == "/Numbers" or received_message == "/numbers":
-        numbers =" 1	eins \n 2	zwei \n 3	drei \n 4	vier \n 5	funf \n 6	sechs\n 7	sieben \n 8	acht \n 9" \
-                 "	neun \n 10	zehn"
-        response_msg = json.dumps({"recipient": {"id": fbid}, "message": {"text": numbers}})
 
     if received_message == "/Help" or received_message == "/help":
         response_msg = json.dumps({
