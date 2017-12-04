@@ -32,7 +32,7 @@ Run the development server:
 Run ngrok using:  
 ```$ ngrok http 8000```  
 ![](https://i.imgur.com/76qPYZn.png)  
- Now any outside computer can reach your localhost server at ```https://fac8049c.ngrok.io``` his can change everytime you run ngrok) which means so can Facebook. Add  ```https://fac8049c.ngrok.io``` in _languageBot/settings.py_ under:     
+ Now any outside computer can reach your localhost server at ```https://fac8049c.ngrok.io``` (this can change everytime you run ngrok) which means so can Facebook. Add  ```https://fac8049c.ngrok.io``` in _languageBot/settings.py_ under:     
 ```
 ALLOWED_HOSTS = [  
   'https://fac8049c.ngrok.io/'  
