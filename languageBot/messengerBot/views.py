@@ -5,10 +5,12 @@ from django.views.decorators.csrf import csrf_exempt
 import json, requests, random
 from pprint import pprint
 from googletrans import Translator
-from questions import generate_question
+from questionsGerman import generate_question_german
+from questionsFrench import generate_question_french
 
-page_access_token = '<page_access_token>'
+page_access_token = '<page_access_token_>'
 lang = ''
+quiz_mode = ''
 quiz = False
 answer = ''
 
@@ -105,21 +107,40 @@ def translate_text(lang, received_message):
     return message_text
 
 
-def check_answer(received_answer, fbid, answer):
-    if received_message == answer:
+def check_answer(received_message, fbid):
+    if quiz_mode == 'de':
+        question = generate_question_german()
+    if quiz_mode == 'fr':
+        question = generate_question_french()
+    global answer
+    right = [
+        'Right! Next question: ',
+        'Right answer! ;) ',
+        'Correct! Next, ',
+        'Bravo! Onto to the next one. ',
+        'Right answer, keep it up! '
+    ]
+    wrong = [
+        'Uh oh, wrong answer.',
+        'Wrong :\ Better luck next question? ',
+        'Incorrect! ',
+        "Wrong answer! Keep going, don't get sad. "
+    ]
+    if received_message.lower() == answer:
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": "Right answer! Type 'next' for next question or 'exit quiz' to stop the quiz ;)"
+                "text": random.choice(right) + question['question']
             }
         })
     else:
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": "Wrong answer! It's elf :\ Type 'next' for next question or 'exit quiz' to stop the quiz."
+                "text": random.choice(wrong) + " Right answer is: " + answer + " " + question['question']
             }
         })
+    answer = question['answer']
     return response_msg
 
 
@@ -154,8 +175,7 @@ def post_facebook_message(fbid, message):
     greeting = firstEntity(message['nlp'], 'greetings')
     if greeting and greeting['confidence'] > 0.8:
         greetings = [
-            "Hello! Hola! Bonjour! Namaste! To begin learning choose from the following languages: German. Type "
-            "'German'.",
+            "Hello! Hola! Bonjour! Namaste! To begin learning choose from the following languages: ",
             "Hey " + user_details['first_name'] + "! Type the name of the language to start learning",
             'Welcome ' + user_details['first_name'] + ', to language learning bot! Click on one of the quick replies'
                                                       ' to begin learning.'
@@ -169,7 +189,13 @@ def post_facebook_message(fbid, message):
                         "content_type": "text",
                         "title": "/German",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }]
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
             }})
 
     thank = firstEntity(message['nlp'], 'thanks')
@@ -208,12 +234,12 @@ def post_facebook_message(fbid, message):
             }
         })
 
-    if received_message == "/About Bot" or received_message == "/about bot":
+    if received_message.lower() == "/about bot":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
                 "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
-                        " I only know German.",
+                        " I only know German and French.",
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -223,7 +249,7 @@ def post_facebook_message(fbid, message):
                 ]
             }})
 
-    if received_message == "/German" or received_message == "/german":
+    if received_message.lower() == "/german":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -254,51 +280,115 @@ def post_facebook_message(fbid, message):
                     },
                     {
                         "content_type": "text",
-                        "title": "Quiz",
+                        "title": "German quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
 
-    if received_message == "quiz" or received_message == "Quiz":
+    if received_message.lower() == "/french":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": 'What quiz will you like to play?',
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Get ready to learn Fran\xc3\xa7ais!",
+                                "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France."
+                                             "svg/1280px-Flag_of_France.svg.png",
+                                "subtitle": "Choose from the following"
+                            }
+                        ]
+                    }
+                },
                 "quick_replies": [
                     {
                         "content_type": "text",
-                        "title": "Numbers",
+                        "title": "French culture",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
                     {
                         "content_type": "text",
-                        "title": "Months",
+                        "title": "Translate in French",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
                     {
                         "content_type": "text",
-                        "title": 'Days',
+                        "title": "French quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
+            }})
+
+    if received_message.lower() == "german quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Okay. So I am going to ask you simple question to start with. '
+                        'Type "exit quiz" to quit. Shall we begin?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "TEST MY GERMAN",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+
+            }
+        })
+
+    if received_message.lower() == "french quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Okay. So I am going to ask you simple question to start with. '
+                        'Type "exit quiz" to quit. Shall we begin?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "TEST MY FRENCH",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+
             }
         })
 
     if quiz == True:
-        response_msg = check_answer(received_message, fbid, answer)
+        response_msg = check_answer(received_message, fbid)
 
-    if received_message == "next" or received_message == "Next":
-        question = generate_question()
+    if received_message.lower() == "test my german":
+        global quiz_mode
+        quiz_mode = 'de'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": question['question']
+                "text": "What is your first name? (Answer goes like 'My name is... but in German obviously ;) )"
             }
         })
-        answer = question['answer']
+        global quiz
+        global answer
+        quiz = True
+        answer = "ich bin " + user_details['first_name'].lower()
 
-    if received_message == 'exit quiz':
+    if received_message.lower() == "test my french":
+        global quiz_mode
+        quiz_mode = 'fr'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "What is your first name? (Answer goes like 'My name is... but in French obviously ;) )"
+            }
+        })
+        global quiz
+        global answer
+        quiz = True
+        answer = "je suis " + user_details['first_name'].lower()
+
+    if received_message.lower() == 'exit quiz':
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -307,19 +397,7 @@ def post_facebook_message(fbid, message):
         })
         quiz = False
 
-    if received_message == "Numbers" or received_message == "numbers":
-        global quiz
-        quiz = True
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "What is 11 called in German?"
-            }
-        })
-        global answer
-        answer = "elf"
-
-    if received_message == "German culture" or received_message == "german culture":
+    if received_message.lower() == "german culture":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -341,17 +419,32 @@ def post_facebook_message(fbid, message):
                                         "title": "Read More"
                                     }
                                 ]
-                            },
+                            }
+                        ]
+                    }
+                }
+            }
+        })
+
+    if received_message.lower() == "french culture":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
                             {
                                 "title": "France",
-                                "image_url": 'http://www.middlebury.edu/system/files/media/Germany%20031%20bright.jpg',
-                                "subtitle": 'Germany; German: Deutschland, officially the Federal Republic of'
-                                            ' Germany (German: Bundesrepublik Deutschland),is a federal'
-                                            ' parliamentary republic in central-western Europe.',
-                                "buttons": [
+                                "image_url": 'http://www.socialmatter.net/wp-content/uploads/2015/11/france.jpg',
+                                "subtitle" : 'France, officially the French Republic, is a country whose territory '
+                                            'consists of metropolitan France in western Europe, as well as several '
+                                            'overseas regions and territories.',
+                                "buttons" : [
                                     {
                                         "type": "web_url",
-                                        "url": "https://en.wikipedia.org/wiki/Germany",
+                                        "url": "https://en.wikipedia.org/wiki/France",
                                         "title": "Read More"
                                     }
                                 ]
@@ -359,9 +452,10 @@ def post_facebook_message(fbid, message):
                         ]
                     }
                 }
-            }})
+            }
+        })
 
-    if received_message == 'Translate in German' or received_message == "translate in german":
+    if received_message.lower() == "translate in german":
         global lang
         lang = 'de'
         response_msg = json.dumps({
@@ -387,14 +481,48 @@ def post_facebook_message(fbid, message):
                     },
                     {
                         "content_type": "text",
-                        "title": '/Exit Tanslation',
+                        "title": '/Exit Translation',
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }
         })
 
-    if received_message == '/Exit Translation' or received_message == "/exit translation":
+    if received_message.lower() == "translate in french":
+        global lang
+        lang = 'fr'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "/exit translation":
         global lang
         lang = ''
         response_msg = json.dumps({
@@ -411,12 +539,18 @@ def post_facebook_message(fbid, message):
                         "content_type": "text",
                         "title": "/German",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
+
                 ]
             }
         })
 
-    if received_message == "/Help" or received_message == "/help":
+    if received_message.lower() == "/help":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
