@@ -8,7 +8,7 @@ from googletrans import Translator
 from questionsGerman import generate_question_german
 from questionsFrench import generate_question_french
 
-page_access_token = '<page_access_token_>'
+page_access_token = '<page_access_token>'
 lang = ''
 quiz_mode = ''
 quiz = False
@@ -33,10 +33,9 @@ class messengerBotView(generic.View):
             for message in entry['messaging']:
                 if 'message' in message:
                     pprint(message)
-                    if message['sender']['id'] != '351106498695933':
-                        seen_message(message['sender']['id'])
-                        typing_message(message['sender']['id'])
-                        post_facebook_message(message['sender']['id'], message['message'])
+                    seen_message(message['sender']['id'])
+                    typing_message(message['sender']['id'])
+                    post_facebook_message(message['sender']['id'], message['message'])
         return HttpResponse()
 
 
@@ -564,6 +563,11 @@ def post_facebook_message(fbid, message):
                     {
                         "content_type": "text",
                         "title": "/German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]

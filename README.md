@@ -36,10 +36,10 @@ Run ngrok using:
 
 So lets set up the webhook for Facebook. Go to your app dashboard and click on Messenger. Click on "Setup Webhooks" right below "Token Generation" and fill the details:  
   
-**Callback URL:** ```https://fac8049c.ngrok.io/messengerBot/21975e0a3c7ab17aa37124158bbda569af363d15eacb576e0```
+**Callback URL:** ```https://fac8049c.ngrok.io/messengerBot/21975e0a3c7ab17aa37124158bbda569af363d15eacb576e06```
   
 **Verify Token** can be anything. Replace this Verify Token with **<verify_token>** in _messengerBot/views.py_
   
-Select **messages, messaging_postbacks** in Subscription Fields. Now click on "Verify and Save" and your webhook is setup. You should see the green tick. Next, select the page you want your app to be subscribed to and click on Subscribe.
-
+Select **messages, messaging_postbacks** in Subscription Fields. Now click on "Verify and Save" and your webhook is setup. You should see the green tick. Next, select the page you want your app to be subscribed to and click on **Subscribe**.
+Also turn on **Built-in NLP** for your app.
 Now you're bot is ready to talk! Go ahead and send a message to your Facebook page.
