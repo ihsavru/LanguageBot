@@ -42,4 +42,4 @@ So lets set up the webhook for Facebook. Go to your app dashboard and click on M
   
 Select **messages, messaging_postbacks** in Subscription Fields. Now click on "Verify and Save" and your webhook is setup. You should see the green tick. Next, select the page you want your app to be subscribed to and click on **Subscribe**.
 Also turn on **Built-in NLP** for your app.
-Now you're bot is ready to talk! Go ahead and send a message to your Facebook page.
+Now your bot is ready to talk! Go ahead and send a message to your Facebook page.
