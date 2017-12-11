@@ -7,6 +7,8 @@ from pprint import pprint
 from googletrans import Translator
 from questionsGerman import generate_question_german
 from questionsFrench import generate_question_french
+from questionsSpanish import generate_question_spanish
+from questionsSwedish import generate_question_swedish
 
 page_access_token = '<page_access_token>'
 lang = ''
@@ -111,6 +113,10 @@ def check_answer(received_message, fbid):
         question = generate_question_german()
     if quiz_mode == 'fr':
         question = generate_question_french()
+    if quiz_mode == 'es':
+        question = generate_question_spanish()
+    if quiz_mode == 'sv':
+        question = generate_question_swedish()
     global answer
     right = [
         'Right! Next question: ',
@@ -193,6 +199,16 @@ def post_facebook_message(fbid, message):
                         "content_type": "text",
                         "title": "/French",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
@@ -233,12 +249,33 @@ def post_facebook_message(fbid, message):
             }
         })
 
+    if received_message.lower() == "how are you?":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "I am fine, thank you!"
+            }})
+
+    if received_message.lower() == "what is your name?":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Call me whatever you want ;)"
+            }})
+
+    if received_message.lower() == "how old are you?":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "I was born when the third edition of LITG started!"
+            }})
+
     if received_message.lower() == "/about bot":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
                 "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
-                        " I only know German and French.",
+                        " I only know German, French, Spanish and Swedish.",
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -322,6 +359,80 @@ def post_facebook_message(fbid, message):
                 ]
             }})
 
+    if received_message.lower() == "/spanish":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Get ready to learn Espa\xc3\xb1ol!",
+                                "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9a/Flag_of_Spain."
+                                             "svg/1200px-Flag_of_Spain.svg.png",
+                                "subtitle": "Choose from the following"
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Spanish culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Spanish quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+
+    if received_message.lower() == "/swedish":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Get ready to learn Svenska!",
+                                "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/4/4c/Flag_of_Sweden.svg/"
+                                             "1200px-Flag_of_Sweden.svg.png",
+                                "subtitle": "Choose from the following"
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Swedish culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Swedish quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+
     if received_message.lower() == "german quiz":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -349,6 +460,40 @@ def post_facebook_message(fbid, message):
                     {
                         "content_type": "text",
                         "title": "TEST MY FRENCH",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+
+            }
+        })
+
+    if received_message.lower() == "spanish quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Okay. So I am going to ask you simple question to start with. '
+                        'Type "exit quiz" to quit. Shall we begin?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "TEST MY SPANISH",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+
+            }
+        })
+
+    if received_message.lower() == "swedish quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Okay. So I am going to ask you simple question to start with. '
+                        'Type "exit quiz" to quit. Shall we begin?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "TEST MY SWEDISH",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -387,6 +532,34 @@ def post_facebook_message(fbid, message):
         quiz = True
         answer = "je suis " + user_details['first_name'].lower()
 
+    if received_message.lower() == "test my spanish":
+        global quiz_mode
+        quiz_mode = 'es'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "What is your first name? (Answer goes like 'My name is... but in Spanish obviously ;) )"
+            }
+        })
+        global quiz
+        global answer
+        quiz = True
+        answer = "mi nombre es " + user_details['first_name'].lower()
+
+    if received_message.lower() == "test my swedish":
+        global quiz_mode
+        quiz_mode = 'sv'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "What father called in Swedish?"
+            }
+        })
+        global quiz
+        global answer
+        quiz = True
+        answer = "far"
+
     if received_message.lower() == 'exit quiz':
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -421,7 +594,24 @@ def post_facebook_message(fbid, message):
                             }
                         ]
                     }
-                }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "German culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "German quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
             }
         })
 
@@ -450,7 +640,118 @@ def post_facebook_message(fbid, message):
                             }
                         ]
                     }
-                }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "French culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "French in Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "French quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "spanish culture":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Spain",
+                                "image_url": 'https://secure.parksandresorts.wdpromedia.com/resize/mwImage/1/1200/600/9'
+                                             '0/secure.parksandresorts.wdpromedia.com/media/abd/refresh/europe/spain-va'
+                                             'cations/adventures-by-disney-europe-spain-hero-03-great-mosque-of-cordo'
+                                             'ba.jpg',
+                                "subtitle" : 'Spain, officially the Kingdom of Spain, is a sovereign state located on '
+                                             'the Iberian Peninsula in southwestern Europe, with two large archipelag',
+                                "buttons" : [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://en.wikipedia.org/wiki/Spain",
+                                        "title": "Read More"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Spanish culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Spanish quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "swedish culture":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Sweden",
+                                "image_url": 'http://www.globalblue.com/tax-free-shopping/sweden/article641223.ece/al'
+                                             'ternates/LANDSCAPE2_970/Gamla-Stan-View-Stockholm-Sweden.jpg',
+                                "subtitle" : 'Sweden is a Scandinavian nation with thousands of coastal islands and'
+                                             ' inland lakes, along with vast boreal forests and glaciated mountains.',
+                                "buttons" : [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://en.wikipedia.org/wiki/Sweden",
+                                        "title": "Read More"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Swedish culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Swedish quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
             }
         })
 
@@ -490,6 +791,74 @@ def post_facebook_message(fbid, message):
     if received_message.lower() == "translate in french":
         global lang
         lang = 'fr'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "translate in spanish":
+        global lang
+        lang = 'es'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "translate in swedish":
+        global lang
+        lang = 'sv'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -568,6 +937,16 @@ def post_facebook_message(fbid, message):
                     {
                         "content_type": "text",
                         "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]

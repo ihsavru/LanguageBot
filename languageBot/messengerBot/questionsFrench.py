@@ -55,7 +55,7 @@ def generate_question_french():
             'answer': "est"
         },
         {
-            'question': "'West' is called? This is easy ;)",
+            'question': "'West' is called?",
             'answer': "ouest"
         },
         {
