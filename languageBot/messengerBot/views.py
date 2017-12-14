@@ -11,10 +11,10 @@ from questionsSpanish import generate_question_spanish
 from questionsSwedish import generate_question_swedish
 
 page_access_token = '<page_access_token>'
-lang = ''
-quiz_mode = ''
-quiz = False
-answer = ''
+lang = {}
+quiz_mode = {}
+quiz = {}
+answer = {}
 
 
 class messengerBotView(generic.View):
@@ -30,6 +30,7 @@ class messengerBotView(generic.View):
 
     def post(self, request, *args, **kwargs):
         get_started()
+        persistent_menu()
         incoming_message = json.loads(self.request.body.decode('utf-8'))
         for entry in incoming_message['entry']:
             for message in entry['messaging']:
@@ -37,25 +38,31 @@ class messengerBotView(generic.View):
                     pprint(message)
                     seen_message(message['sender']['id'])
                     typing_message(message['sender']['id'])
-                    post_facebook_message(message['sender']['id'], message['message'])
+                    post_facebook_message(message['sender']['id'], message)
         return HttpResponse()
 
-
-def set_persistent_menu():
+def persistent_menu():
     post_message_url = "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=" + page_access_token
     response_msg = json.dumps({
         "persistent_menu": [{
+            "locale": "default",
             "call_to_actions": [
-                {
-                    "type": "postback",
-                    "title": "Get Started",
-                    "payload": "_PAYLOAD"
-                },
                 {
                     "type": "web_url",
                     "title": "Review",
                     "url": "https://www.facebook.com/pg/Language-Bot-351106498695933/reviews/?ref=page_internal",
                     "webview_height_ratio": "full"
+                },
+                {
+                    "type": "web_url",
+                    "title": "Source Code",
+                    "url": "https://github.com/ihsavru/LanguageBot",
+                    "webview_height_ratio": "full"
+                },
+                {
+                    "title": "About",
+                    "type": "postback",
+                    "payload": "ABOUT_PAYLOAD"
                 }
             ]
         }]
@@ -102,20 +109,20 @@ def get_user_details(fbid):
     return requests.get(user_details_url, user_details_params).json()
 
 
-def translate_text(lang, received_message):
+def translate_text(received_message,fbid):
     translator = Translator()
-    message_text = translator.translate(received_message, dest=lang).text
+    message_text = translator.translate(received_message, dest=lang[fbid]).text
     return message_text
 
 
 def check_answer(received_message, fbid):
-    if quiz_mode == 'de':
+    if quiz_mode[fbid] == 'de':
         question = generate_question_german()
-    if quiz_mode == 'fr':
+    if quiz_mode[fbid] == 'fr':
         question = generate_question_french()
-    if quiz_mode == 'es':
+    if quiz_mode[fbid] == 'es':
         question = generate_question_spanish()
-    if quiz_mode == 'sv':
+    if quiz_mode[fbid] == 'sv':
         question = generate_question_swedish()
     global answer
     right = [
@@ -131,7 +138,7 @@ def check_answer(received_message, fbid):
         'Incorrect! ',
         "Wrong answer! Keep going, don't get sad. "
     ]
-    if received_message.lower() == answer:
+    if received_message.lower() == answer[fbid]:
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -142,28 +149,97 @@ def check_answer(received_message, fbid):
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": random.choice(wrong) + " Right answer is: " + answer + " " + question['question']
+                "text": random.choice(wrong) + " Right answer is: " + answer[fbid] + " " + question['question']
             }
         })
-    answer = question['answer']
+    answer[fbid] = question['answer']
     return response_msg
 
 
-def post_facebook_message(fbid, message):
+def post_facebook_message(fbid, fb_message):
+
     user_details = get_user_details(fbid)
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
-    # check whether the received message is text or an attachment
     try:
-        received_message = message['text']
-    except:
-        response_msg = json.dumps(
-            {
+        postback = fb_message['postback']
+        if postback['payload'] == '<GET_STARTED_PAYLOAD>':
+            response_msg = json.dumps(
+                {
+                    "recipient": {"id": fbid},
+                    "message": {
+                    "text": "Begin learning. Choose from the following:",
+                    "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "/German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]}
+                })
+            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+            pprint(status.json())
+            return 0
+        if postback['payload'] == '<ABOUT_PAYLOAD>':
+            response_msg = json.dumps({
                 "recipient": {"id": fbid},
-                "message": {"text": ":)"}
-            })
-        status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
-        pprint(status.json())
-        return 0
+                "message": {
+                    "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
+                            " I only know German, French, Spanish and Swedish.",
+                    "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "/German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+                }})
+            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+            pprint(status.json())
+            return 0
+    # check whether the received message is text or an attachment
+    except KeyError:
+        message = fb_message['message']
+        try:
+         received_message = message['text']
+        except:
+            response_msg = json.dumps(
+                {
+                    "recipient": {"id": fbid},
+                    "message": {"text": ":)"}
+                })
+            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+            pprint(status.json())
+            return 0
 
     response_msg = json.dumps(
         {
@@ -239,16 +315,6 @@ def post_facebook_message(fbid, message):
             "message": {
                 "text": random.choice(bye_message)
             }})
-
-    if lang != '':
-        message_text = translate_text(lang, received_message)
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": message_text
-            }
-        })
-
     if received_message.lower() == "how are you?":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -269,6 +335,18 @@ def post_facebook_message(fbid, message):
             "message": {
                 "text": "I was born when the third edition of LITG started!"
             }})
+    try:
+        if lang[fbid] != '':
+            message_text = translate_text(received_message,fbid)
+            response_msg = json.dumps({
+                "recipient": {"id": fbid},
+                "message": {
+                    "text": message_text
+                }
+            })
+    except:
+        print("Exception found")
+
 
     if received_message.lower() == "/about bot":
         response_msg = json.dumps({
@@ -500,13 +578,15 @@ def post_facebook_message(fbid, message):
 
             }
         })
-
-    if quiz == True:
-        response_msg = check_answer(received_message, fbid)
+    try:
+        if quiz[fbid] == True:
+            response_msg = check_answer(received_message, fbid)
+    except:
+        print("Exception")
 
     if received_message.lower() == "test my german":
         global quiz_mode
-        quiz_mode = 'de'
+        quiz_mode[fbid] = 'de'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -515,12 +595,12 @@ def post_facebook_message(fbid, message):
         })
         global quiz
         global answer
-        quiz = True
-        answer = "ich bin " + user_details['first_name'].lower()
+        quiz[fbid] = True
+        answer[fbid] = "ich bin " + user_details['first_name'].lower()
 
     if received_message.lower() == "test my french":
         global quiz_mode
-        quiz_mode = 'fr'
+        quiz_mode[fbid] = 'fr'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -529,12 +609,12 @@ def post_facebook_message(fbid, message):
         })
         global quiz
         global answer
-        quiz = True
-        answer = "je suis " + user_details['first_name'].lower()
+        quiz[fbid] = True
+        answer[fbid] = "je suis " + user_details['first_name'].lower()
 
     if received_message.lower() == "test my spanish":
         global quiz_mode
-        quiz_mode = 'es'
+        quiz_mode[fbid] = 'es'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -543,12 +623,12 @@ def post_facebook_message(fbid, message):
         })
         global quiz
         global answer
-        quiz = True
-        answer = "mi nombre es " + user_details['first_name'].lower()
+        quiz[fbid] = True
+        answer[fbid] = "mi nombre es " + user_details['first_name'].lower()
 
     if received_message.lower() == "test my swedish":
         global quiz_mode
-        quiz_mode = 'sv'
+        quiz_mode[fbid] = 'sv'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -557,17 +637,39 @@ def post_facebook_message(fbid, message):
         })
         global quiz
         global answer
-        quiz = True
-        answer = "far"
+        quiz[fbid] = True
+        answer[fbid] = "far"
 
     if received_message.lower() == 'exit quiz':
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": "Okay. No more questions for you."
+                "text": "Okay. No more questions for you. Want to try something else?",
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "/German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
             }
         })
-        quiz = False
+        quiz[fbid] = False
 
     if received_message.lower() == "german culture":
         response_msg = json.dumps({
@@ -757,7 +859,7 @@ def post_facebook_message(fbid, message):
 
     if received_message.lower() == "translate in german":
         global lang
-        lang = 'de'
+        lang[fbid] = 'de'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -790,7 +892,7 @@ def post_facebook_message(fbid, message):
 
     if received_message.lower() == "translate in french":
         global lang
-        lang = 'fr'
+        lang[fbid] = 'fr'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -824,7 +926,7 @@ def post_facebook_message(fbid, message):
 
     if received_message.lower() == "translate in spanish":
         global lang
-        lang = 'es'
+        lang[fbid] = 'es'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -858,7 +960,7 @@ def post_facebook_message(fbid, message):
 
     if received_message.lower() == "translate in swedish":
         global lang
-        lang = 'sv'
+        lang[fbid] = 'sv'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -892,7 +994,7 @@ def post_facebook_message(fbid, message):
 
     if received_message.lower() == "/exit translation":
         global lang
-        lang = ''
+        lang[fbid] = ''
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -958,7 +1060,8 @@ def post_facebook_message(fbid, message):
 
 def get_started():
     post_message_url = 'https://graph.facebook.com/v2.6/me/messenger_profile?access_token=' + page_access_token
-    response_msg = json.dumps({"get_started": {
+    response_msg = json.dumps({
+        "get_started": {
         "payload": "<GET_STARTED_PAYLOAD>"
     }})
     status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)

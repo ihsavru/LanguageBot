@@ -1,5 +1,5 @@
 from django.test import TestCase
-from views import translate_text, generate_question
+from views import translate_text
 
 # Create your tests here.
 
@@ -9,8 +9,5 @@ class testLanguageChange(TestCase):
         self.assertEqual(translate_text('de', 'Hello'), 'Hallo', msg="Wrong translation!")
         self.assertEqual(translate_text('es', 'Hello'), 'Hola', msg="Wrong translation!")
 
-class testQuiz(TestCase):
-    def testCorrectAnswer(self):
-        question = generate_question()
 
 
