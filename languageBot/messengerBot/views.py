@@ -9,6 +9,7 @@ from questionsGerman import generate_question_german
 from questionsFrench import generate_question_french
 from questionsSpanish import generate_question_spanish
 from questionsSwedish import generate_question_swedish
+from datetime import datetime
 
 page_access_token = '<page_access_token>'
 lang = {}
@@ -149,7 +150,7 @@ def check_answer(received_message, fbid):
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": random.choice(wrong) + " Right answer is: " + answer[fbid] + " " + question['question']
+                "text": random.choice(wrong) + " Right answer is: " + answer[fbid] + ". " + question['question']
             }
         })
     answer[fbid] = question['answer']
@@ -301,6 +302,19 @@ def post_facebook_message(fbid, fb_message):
             "recipient": {"id": fbid},
             "message": {
                 "text": random.choice(thanks)
+            }})
+
+    datetime_msg = firstEntity(message['nlp'], 'datetime')
+    if datetime_msg and datetime_msg['confidence'] > 0.8 and datetime_msg['grain'] =="day":
+        d = datetime.now()
+        date = [
+            d.strftime("%d,%B") + " isn't such a bad day.",
+            d.strftime("%A") + "s are fundays!",
+        ]
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": random.choice(date)
             }})
 
     bye = firstEntity(message['nlp'], 'bye')
@@ -516,7 +530,7 @@ def post_facebook_message(fbid, fb_message):
             "recipient": {"id": fbid},
             "message": {
                 "text": 'Okay. So I am going to ask you simple question to start with. '
-                        'Type "exit quiz" to quit. Shall we begin?',
+                        'Type "/exit quiz" to quit. Shall we begin?',
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -533,7 +547,7 @@ def post_facebook_message(fbid, fb_message):
             "recipient": {"id": fbid},
             "message": {
                 "text": 'Okay. So I am going to ask you simple question to start with. '
-                        'Type "exit quiz" to quit. Shall we begin?',
+                        'Type "/exit quiz" to quit. Shall we begin?',
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -550,7 +564,7 @@ def post_facebook_message(fbid, fb_message):
             "recipient": {"id": fbid},
             "message": {
                 "text": 'Okay. So I am going to ask you simple question to start with. '
-                        'Type "exit quiz" to quit. Shall we begin?',
+                        'Type "/exit quiz" to quit. Shall we begin?',
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -567,7 +581,7 @@ def post_facebook_message(fbid, fb_message):
             "recipient": {"id": fbid},
             "message": {
                 "text": 'Okay. So I am going to ask you simple question to start with. '
-                        'Type "exit quiz" to quit. Shall we begin?',
+                        'Type "/exit quiz" to quit. Shall we begin?',
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -640,7 +654,7 @@ def post_facebook_message(fbid, fb_message):
         quiz[fbid] = True
         answer[fbid] = "far"
 
-    if received_message.lower() == 'exit quiz':
+    if received_message.lower() == '/exit quiz':
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -678,7 +692,7 @@ def post_facebook_message(fbid, fb_message):
                 "attachment": {
                     "type": "template",
                     "payload": {
-                        "template_type": "generic",
+                        "template_type": "list",
                         "elements": [
                             {
                                 "title": "Germany",
@@ -690,7 +704,19 @@ def post_facebook_message(fbid, fb_message):
                                     {
                                         "type": "web_url",
                                         "url": "https://en.wikipedia.org/wiki/Germany",
-                                        "title": "Read More"
+                                        "title": "Read on Wikipedia"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Trending music in Germany right now:",
+                                "image_url": 'https://i.scdn.co/image/2326cec8b084055d2b367a9832dbb2ac3561e9c5',
+                                "subtitle": 'Check out the Top 50 songs on Spotify in Deutschland.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://open.spotify.com/user/spotifycharts/playlist/37i9dQZEVXbJiZcmkrIHGU",
+                                        "title": "Listen on Spotify"
                                     }
                                 ]
                             }
@@ -724,7 +750,7 @@ def post_facebook_message(fbid, fb_message):
                 "attachment": {
                     "type": "template",
                     "payload": {
-                        "template_type": "generic",
+                        "template_type": "list",
                         "elements": [
                             {
                                 "title": "France",
@@ -736,7 +762,20 @@ def post_facebook_message(fbid, fb_message):
                                     {
                                         "type": "web_url",
                                         "url": "https://en.wikipedia.org/wiki/France",
-                                        "title": "Read More"
+                                        "title": "Read on Wikipedia"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Trending music in France right now:",
+                                "image_url": 'https://i.scdn.co/image/5d4c015586839d8be283f6762fdf847129f35d2f',
+                                "subtitle": 'Check out the Top 50 songs on Spotify in France.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://open.spotify.com/user/spotifycharts/playlist/37i9dQZEVXbIPWwFss"
+                                               "bupI",
+                                        "title": "Listen on Spotify"
                                     }
                                 ]
                             }
@@ -770,7 +809,7 @@ def post_facebook_message(fbid, fb_message):
                 "attachment": {
                     "type": "template",
                     "payload": {
-                        "template_type": "generic",
+                        "template_type": "list",
                         "elements": [
                             {
                                 "title": "Spain",
@@ -784,7 +823,20 @@ def post_facebook_message(fbid, fb_message):
                                     {
                                         "type": "web_url",
                                         "url": "https://en.wikipedia.org/wiki/Spain",
-                                        "title": "Read More"
+                                        "title": "Read on Wikipedia"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Trending music in Spain right now:",
+                                "image_url": 'https://i.scdn.co/image/d63704d94ab97f6ebe2633e877bb6764ec31dc2e',
+                                "subtitle": 'Check out the Top 50 songs on Spotify in Spain.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://open.spotify.com/user/spotifycharts/playlist/37i9dQZEVXbNFJfN"
+                                               "1Vw8d9",
+                                        "title": "Listen on Spotify"
                                     }
                                 ]
                             }
@@ -818,7 +870,8 @@ def post_facebook_message(fbid, fb_message):
                 "attachment": {
                     "type": "template",
                     "payload": {
-                        "template_type": "generic",
+                        "template_type": "list",
+                        "top_element_style": "large",
                         "elements": [
                             {
                                 "title": "Sweden",
@@ -830,7 +883,19 @@ def post_facebook_message(fbid, fb_message):
                                     {
                                         "type": "web_url",
                                         "url": "https://en.wikipedia.org/wiki/Sweden",
-                                        "title": "Read More"
+                                        "title": "Read on Wikipedia"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Trending music in Sweden right now:",
+                                "image_url": 'https://i.scdn.co/image/58ce31b40bf6a44849e7678a065a754a9d22e47c',
+                                "subtitle": 'Check out the Top 50 songs on Spotify in Sweden.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://open.spotify.com/user/spotifycharts/playlist/37i9dQZEVXbLoATJ81JYXz",
+                                        "title": "Listen on Spotify"
                                     }
                                 ]
                             }
@@ -1013,6 +1078,16 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
 
