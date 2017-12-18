@@ -8,8 +8,7 @@ from googletrans import Translator
 from questions import generate_question
 from datetime import datetime
 
-page_access_token = 'EAAUDpluM64kBAPZAo5yG2j3o4BQ6OvdNjD3WO61pT5yHbr0ZBsIAUImziHTp2xwygFgXiT1UFlZAFmLc7p24beHZBQYXpv' \
-                    'pWkDX7PPNwdQ4ahiNSwdgOnoBIpUV8QgCRijuD8vlURXeaoxC9ypMeAOsvTgGuZCePeLNm0vN4seugpZATiK4O2f'
+page_access_token = '<page_access_token>'
 
 lang = {}
 quiz_mode = {}
@@ -25,7 +24,7 @@ class messengerBotView(generic.View):
         return generic.View.dispatch(self, request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if self.request.GET.get('hub.verify_token', '') == '987654321':
+        if self.request.GET.get('hub.verify_token', '') == '<verify_token>':
             return HttpResponse(self.request.GET.get('hub.challenge'))
 
         else:
@@ -35,12 +34,9 @@ class messengerBotView(generic.View):
         incoming_message = json.loads(self.request.body.decode('utf-8'))
         for entry in incoming_message['entry']:
             for message in entry['messaging']:
-                if 'message' in message:
-                    pprint(message)
-                    seen_message(message['sender']['id'])
-                    typing_message(message['sender']['id'])
-                    post_facebook_message(message['sender']['id'], message)
-        return HttpResponse()
+                pprint(message)
+                post_facebook_message(message['sender']['id'], message)
+            return HttpResponse()
 
 def persistent_menu():
     post_message_url = "https://graph.facebook.com/v2.6/me/messenger_profile?access_token=" + page_access_token
@@ -168,52 +164,45 @@ def check_answer(received_message, fbid):
     answer[fbid] = question['answer']
     return response_msg
 
-
-def post_facebook_message(fbid, fb_message):
-
-    user_details = get_user_details(fbid)
-    post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
-    try:
-        postback = fb_message['postback']
-        if postback['payload'] == '<GET_STARTED_PAYLOAD>':
-            response_msg = json.dumps(
-                {
-                    "recipient": {"id": fbid},
-                    "message": {
-                    "text": "Begin learning. Choose from the following:",
-                    "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "/German",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/French",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Spanish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Swedish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]}
-                })
-            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
-            pprint(status.json())
-            return 0
-        if postback['payload'] == '<ABOUT_PAYLOAD>':
-            response_msg = json.dumps({
+def handle_postbacks(fbid, postback):
+    if postback['payload'] == '<GET_STARTED_PAYLOAD>':
+        response_msg = json.dumps(
+            {
                 "recipient": {"id": fbid},
                 "message": {
-                    "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
-                            " I only know German, French, Spanish and Swedish.",
+                    "text": "Welcome to Language Bot! We are currently in the development phase. If you're seeing this,"
+                            " it means you have been added as a tester :) Thankyou for messaging us. To begin learning,"
+                            " choose from the following:",
                     "quick_replies": [
+                        {
+                            "content_type": "text",
+                            "title": "/German",
+                            "payload": "<STRING_SENT_TO_WEBHOOK>"
+                        },
+                        {
+                            "content_type": "text",
+                            "title": "/French",
+                            "payload": "<STRING_SENT_TO_WEBHOOK>"
+                        },
+                        {
+                            "content_type": "text",
+                            "title": "/Spanish",
+                            "payload": "<STRING_SENT_TO_WEBHOOK>"
+                        },
+                        {
+                            "content_type": "text",
+                            "title": "/Swedish",
+                            "payload": "<STRING_SENT_TO_WEBHOOK>"
+                        }
+                    ]}
+            })
+    if postback['payload'] == 'ABOUT_PAYLOAD':
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
+                        " I only know German, French, Spanish and Swedish.",
+                "quick_replies": [
                     {
                         "content_type": "text",
                         "title": "/German",
@@ -235,11 +224,19 @@ def post_facebook_message(fbid, fb_message):
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
-                }})
-            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
-            pprint(status.json())
-            return 0
-    # check whether the received message is text or an attachment
+            }})
+    return response_msg
+
+def post_facebook_message(fbid, fb_message):
+
+    user_details = get_user_details(fbid)
+    post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
+    try:
+        postback = fb_message['postback']
+        response_msg = handle_postbacks(fbid, postback)
+        status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
+        pprint(status.json())
+        return 0
     except KeyError:
         message = fb_message['message']
         try:
@@ -253,6 +250,7 @@ def post_facebook_message(fbid, fb_message):
             status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
             pprint(status.json())
             return 0
+
     default_text = [
         "Sorry, I didn't quite understand. Type 'Help' to see the available commands :)",
         "I don't quite know the answer to that. But you can try doing the following:",
