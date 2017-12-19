@@ -12,7 +12,9 @@ page_access_token = '<page_access_token>'
 
 lang = {}
 quiz_mode = {}
+speech_mode = {}
 quiz = {}
+speech = {}
 answer = {}
 score = {}
 count = {}
@@ -162,6 +164,24 @@ def check_answer(received_message, fbid):
             }
         })
     answer[fbid] = question['answer']
+    return response_msg
+
+def handle_audio(received_message,fbid):
+    url = "https://translate.google.com/translate_tts?ie=UTF-8&tl="+speech[fbid]+"-TR&client=tw-ob&q="+received_message.replace(" ","+")
+    print(url)
+    response_msg = json.dumps(
+        {
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "audio",
+                    "payload": {
+                        "url": url,
+                        "is_reusable": "true"
+                    }
+                }
+            }
+        })
     return response_msg
 
 def handle_postbacks(fbid, postback):
@@ -427,6 +447,11 @@ def post_facebook_message(fbid, fb_message):
                         "content_type": "text",
                         "title": "German quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
@@ -463,6 +488,11 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "French quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in French",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -501,6 +531,11 @@ def post_facebook_message(fbid, fb_message):
                         "content_type": "text",
                         "title": "Spanish quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
@@ -538,9 +573,93 @@ def post_facebook_message(fbid, fb_message):
                         "content_type": "text",
                         "title": "Swedish quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
+
+    try:
+        if speech_mode[fbid] == True:
+            response_msg = handle_audio(received_message,fbid)
+    except:
+        print("Speech not set")
+
+    if "pronounce in german" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Enter text in German and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
+            }})
+        global speech_mode,speech
+        speech_mode[fbid] = True
+        speech[fbid] = 'de'
+
+    if "pronounce in french" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Enter text in French and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
+            }})
+        global speech_mode,speech
+        speech_mode[fbid] = True
+        speech[fbid] = 'fr'
+
+    if "pronounce in spanish" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Enter text in Spanish and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
+            }})
+        global speech_mode,speech
+        speech_mode[fbid] = True
+        speech[fbid] = 'es'
+
+    if "pronounce in swedish" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Enter text in Swedish and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
+            }})
+        global speech_mode,speech
+        speech_mode[fbid] = True
+        speech[fbid] = 'sv'
+
+    if "/exit speech" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Let's try something else:",
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "/German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+        global speech, speech_mode
+        speech[fbid] = ''
+        speech_mode[fbid] = False
 
     global count, score
 
