@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 from django.views import generic
 from django.http.response import HttpResponse
 from django.utils.decorators import method_decorator
@@ -133,6 +134,10 @@ def check_answer(received_message, fbid):
         question = generate_question('Spanish')
     if quiz_mode[fbid] == 'sv':
         question = generate_question('Swedish')
+    if quiz_mode[fbid] == 'ja':
+        question = generate_question('Japanese')
+    if quiz_mode[fbid] == 'ko':
+        question = generate_question('Korean')
     count[fbid] = count[fbid] + 1
     global answer
     right = [
@@ -213,9 +218,20 @@ def handle_postbacks(fbid, postback):
                             "content_type": "text",
                             "title": "/Swedish",
                             "payload": "<STRING_SENT_TO_WEBHOOK>"
+                        },
+                        {
+                            "content_type": "text",
+                            "title": "/Japanese",
+                            "payload": "<STRING_SENT_TO_WEBHOOK>"
+                        },
+                        {
+                            "content_type": "text",
+                            "title": "/Korean",
+                            "payload": "<STRING_SENT_TO_WEBHOOK>"
                         }
                     ]}
             })
+        return response_msg
     if postback['payload'] == 'ABOUT_PAYLOAD':
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -242,10 +258,20 @@ def handle_postbacks(fbid, postback):
                         "content_type": "text",
                         "title": "/Swedish",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
             }})
-    return response_msg
+        return response_msg
 
 def post_facebook_message(fbid, fb_message):
 
@@ -321,6 +347,16 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -404,7 +440,7 @@ def post_facebook_message(fbid, fb_message):
             "recipient": {"id": fbid},
             "message": {
                 "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
-                        " I only know German, French, Spanish and Swedish.",
+                        " I only know German, French, Spanish, Swedish, Japanese and Korean.",
                 "quick_replies": [
                     {
                         "content_type": "text",
@@ -582,6 +618,89 @@ def post_facebook_message(fbid, fb_message):
                 ]
             }})
 
+    if received_message.lower() == "/japanese":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Get ready to learn 日本語!",
+                                "image_url": "https://upload.wikimedia.org/wikipedia/en/thumb/9/9e/Flag_of_Japan.svg/"
+                                             "1200px-Flag_of_Japan.svg.png",
+                                "subtitle": "Choose from the following"
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Japanese culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Japanese quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+
+    if received_message.lower() == "/korean":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "generic",
+                        "elements": [
+                            {
+                                "title": "Get ready to learn 한국어!",
+                                "image_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Flag_of_South_Korea.svg/1200px-Flag_of_South_Korea.svg.png",
+                                "subtitle": "Choose from the following"
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Korean culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Korean",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Korean quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Korean",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+
     try:
         if speech_mode[fbid] == True:
             response_msg = handle_audio(received_message,fbid)
@@ -628,6 +747,26 @@ def post_facebook_message(fbid, fb_message):
         speech_mode[fbid] = True
         speech[fbid] = 'sv'
 
+    if "pronounce in japanes" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Enter text in Japanese and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
+            }})
+        global speech_mode,speech
+        speech_mode[fbid] = True
+        speech[fbid] = 'ja'
+
+    if "pronounce in korean" in received_message.lower():
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Enter text in Korean and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
+            }})
+        global speech_mode,speech
+        speech_mode[fbid] = True
+        speech[fbid] = 'ko'
+
     if "/exit speech" in received_message.lower():
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -652,6 +791,16 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -739,6 +888,44 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         score[fbid] = 0
 
+    if received_message.lower() == "japanese quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Okay. So I am going to ask you simple question to start with. '
+                        'Type "/exit quiz" to quit. Shall we begin?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "TEST MY JAPANESE",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+
+            }
+        })
+        count[fbid] = 0
+        score[fbid] = 0
+
+    if received_message.lower() == "korean quiz":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Okay. So I am going to ask you simple question to start with. '
+                        'Type "/exit quiz" to quit. Shall we begin?',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "TEST MY KOREAN",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+
+            }
+        })
+        count[fbid] = 0
+        score[fbid] = 0
+
     try:
         if quiz[fbid] == True:
             response_msg = check_answer(received_message, fbid)
@@ -793,13 +980,41 @@ def post_facebook_message(fbid, fb_message):
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
-                "text": "What apple called in Swedish?"
+                "text": "What is apple called in Swedish?"
             }
         })
         global quiz
         global answer
         quiz[fbid] = True
         answer[fbid] = "apple"
+
+    if "test my japanese" in received_message.lower():
+        global quiz_mode
+        quiz_mode[fbid] = 'ja'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "What is sky called in Japanese?"
+            }
+        })
+        global quiz
+        global answer
+        quiz[fbid] = True
+        answer[fbid] = "sky"
+
+    if "test my korean" in received_message.lower():
+        global quiz_mode
+        quiz_mode[fbid] = 'ko'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "What is milk called in Korean?"
+            }
+        })
+        global quiz
+        global answer
+        quiz[fbid] = True
+        answer[fbid] = "milk"
 
     if received_message.lower() == '/exit quiz':
         try:
@@ -830,6 +1045,16 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -875,6 +1100,21 @@ def post_facebook_message(fbid, fb_message):
                                         "title": "Listen on Spotify"
                                     }
                                 ]
+                            },
+                            {
+                                "title": "10 epic German movies you have to watch before you die:",
+                                "image_url": 'https://www.thelocal.de/userdata/images/article/81f29395ba5384469931c57c8'
+                                             '832e191ee057d74d3062fdff761f675e4fe8278.jpg',
+                                "subtitle": 'These German films are so good, not even The Cabinet of Dr. Caligari made'
+                                            ' the list.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://www.thelocal.de/20160927/10-german-films-to-watch-before-you-die"
+                                               "-cinema-tv-oscars",
+                                        "title": "Read More"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -893,6 +1133,11 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "German quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in German",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -934,6 +1179,22 @@ def post_facebook_message(fbid, fb_message):
                                         "title": "Listen on Spotify"
                                     }
                                 ]
+                            },
+                            {
+                                "title": "The 25 best French movies of the 21st century, from ‘Amélie’ to ‘Cache’",
+                                "image_url": 'https://pmd205465tn-a.akamaihd.net/Miramax/292/783/hoZGh3NTp_kCe_bj8enLPd'
+                                             'KFmD_TPQkp_640x360_251740227538.jpg',
+                                "subtitle": 'The best French films of the 21st Century remind us why France is still as'
+                                            ' important to cinema as light itself.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "http://www.indiewire.com/2017/06/best-french-movies-films-21st-century"
+                                               "-so-far-1201848966/"
+                                               "bupI",
+                                        "title": "Read More"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -952,6 +1213,11 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "French quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in French",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -995,6 +1261,20 @@ def post_facebook_message(fbid, fb_message):
                                         "title": "Listen on Spotify"
                                     }
                                 ]
+                            },
+                            {
+                                "title": "8 incredible Spanish movies on Netflix that you’ve gotta see",
+                                "image_url": 'https://www.fluentu.com/blog/spanish/wp-content/uploads/sites/2/2015/09/'
+                                             'spanish-movies-netflix7.jpg',
+                                "subtitle": 'As language learners, learning to listen is a vital part of our '
+                                            'informational intake and advancement.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://www.fluentu.com/blog/spanish/spanish-movies-netflix/",
+                                        "title": "Read More"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -1013,6 +1293,11 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "Spanish quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Spanish",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -1054,6 +1339,20 @@ def post_facebook_message(fbid, fb_message):
                                         "title": "Listen on Spotify"
                                     }
                                 ]
+                            },
+                            {
+                                "title": "30 Swedish movies you must see before you die",
+                                "image_url": 'https://www.thelocal.se/userdata/images/article/b8032c48587fc44bec8c458b6'
+                                             '2f65bff22e03dd0fd3aa53fa8f760973864e000.jpg',
+                                "subtitle": 'To help us grasp the soul of Swedish film, expert Christian Ekvall picks '
+                                            'out 30 Swedish movies to see before you die.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://www.thelocal.se/20160824/30-swedish-movies-you-must-see-before-you-die",
+                                        "title": "Read More"
+                                    }
+                                ]
                             }
                         ]
                     }
@@ -1072,6 +1371,177 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "Swedish quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "japanese culture":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "list",
+                        "top_element_style": "large",
+                        "elements": [
+                            {
+                                "title": "Japan",
+                                "image_url": 'http://japan-magazine.jnto.go.jp/jnto2wm/wp-content/uploads/1608_special'
+                                             '_TOTO_main.jpg',
+                                "subtitle" : 'Japan (Japanese: 日本 Nippon [ɲippoɴ] or Nihon [ɲihoɴ]; formally 日本国 '
+                                             'About this sound Nippon-koku or Nihon-koku, meaning "State of Japan") is'
+                                             ' a sovereign island nation in East Asia. Located in the Pacific Ocean',
+                                "buttons" : [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://en.wikipedia.org/wiki/Japan",
+                                        "title": "Read on Wikipedia"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Trending music in Japan right now:",
+                                "image_url": 'https://i.scdn.co/image/a750303368c5439903c4e9771a95e6361b9195e2',
+                                "subtitle": 'Check out the Top 50 songs on Spotify in Japan.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://open.spotify.com/user/spotifycharts/playlist/37i9dQZEVXbKXQ4mDTEBXq",
+                                        "title": "Listen on Spotify"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "20 epic Japanese movies that every movie buff should watch",
+                                "image_url": 'http://www.tasteofcinema.com/wp-content/uploads/2014/12/Battle-Royale-2000.jpg',
+                                "subtitle": 'Here are a few of the best Japanese movies to get you started.',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://www.scoopwhoop.com/20-Of-The-Best-Japanese-Movies/#.5edjm82q2",
+                                        "title": "Read More"
+                                    }
+                                ]
+                            }
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Japanese culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Japanese quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "korean culture":
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "attachment": {
+                    "type": "template",
+                    "payload": {
+                        "template_type": "list",
+                        "top_element_style": "large",
+                        "elements": [
+                            {
+                                "title": "South Korea",
+                                "image_url": 'https://cnet2.cbsistatic.com/img/p3BjmuMZvi7wUPZkMm4Vtg23xqc=/fit-in/57'
+                                             '0x0/2015/04/07/350b630d-a2ac-48e0-aacd-860df5574665/chaebols-south-korea.jpg',
+                                "subtitle" : 'South Korea, officially the Republic of Korea (abbreviated ROK), is a '
+                                             'sovereign state in East Asia, constituting the southern part of the Korean Peninsula.',
+                                "buttons" : [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://en.wikipedia.org/wiki/South_Korea",
+                                        "title": "Read on Wikipedia"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Trending music in South Korea right now:",
+                                "image_url": 'https://www.allkpop.com/plugin/artisttag_link/img/artist_1484770287_bts.jpg',
+                                "subtitle": 'Check out the Top 100 songs on MelOn',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "http://www.melon.com/chart/",
+                                        "title": "Listen on MelOn"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "20 Korean movies every movie buff should have on their must-watch list",
+                                "image_url": 'https://s3.scoopwhoop.com/anj/20/559055314.jpg',
+                                "subtitle": '20 Korean movies we felt you should have on your foreign movies bucket list:',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://www.scoopwhoop.com/entertainment/20-best-korean-movies/#.n9vj9evp2",
+                                        "title": "Read More"
+                                    }
+                                ]
+                            },
+                            {
+                                "title": "Learn Korean on YouTube",
+                                "image_url": 'http://image.kdramastars.com/data/images/full/216111/professor-oh-shares-her-knowledge-of-korean-language-and-culture-through-sweet-and-tasty-tv.jpg',
+                                "subtitle": 'Subscribe to sweetandtastyTV for Korean language lessons, travel vlogs, cultural insight, and everything about Korea!',
+                                "buttons": [
+                                    {
+                                        "type": "web_url",
+                                        "url": "https://www.youtube.com/user/sweetandtasty",
+                                        "title": "Go to YouTube"
+                                    }
+                                ]
+                            }
+
+                        ]
+                    }
+                },
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Korean culture",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Translate in Korean",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Korean quiz",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "Pronounce in Korean",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
@@ -1214,6 +1684,76 @@ def post_facebook_message(fbid, fb_message):
             }
         })
 
+    if "translate in japanes" in received_message.lower() :
+        global lang
+        lang[fbid] = 'ja'
+        print(lang[fbid])
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if "translate in korean" in received_message.lower() :
+        global lang
+        lang[fbid] = 'ko'
+        print(lang[fbid])
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
     if received_message.lower() == "/exit translation":
         global lang
         lang[fbid] = ''
@@ -1245,6 +1785,16 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
 
@@ -1281,6 +1831,16 @@ def post_facebook_message(fbid, fb_message):
                     {
                         "content_type": "text",
                         "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
                 ]
