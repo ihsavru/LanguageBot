@@ -9,7 +9,8 @@ from googletrans import Translator
 from questions import generate_question
 from datetime import datetime
 
-page_access_token = '<page_access_token>'
+page_access_token = 'EAAUDpluM64kBAKioE52lyEh05GqtEYRpcnJZADdTwulDYRvajCPBc4OZB63BTsDmW3tLFRB7RvNPwxQ2a5oywWiI3Xn8SKcZA' \
+                    'CqpZBW0cSZCpNpP3wDr0CZA7EzSDhIYgLICD2p7TDleiLZAf71MMEugTkkmBGtyz9aTJRLYHiZATW7m8DNoohYo'
 
 lang = {}
 quiz_mode = {}
