@@ -313,7 +313,7 @@ def handle_postbacks(fbid, postback):
         return response_msg
 
 def post_facebook_message(fbid, fb_message):
-
+    global speech_mode, speech, quiz_mode, quiz, answer, lang
     user_details = get_user_details(fbid)
     post_message_url = 'https://graph.facebook.com/v2.6/me/messages?access_token=' + page_access_token
     try:
@@ -752,7 +752,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "Enter text in German and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
             }})
-        global speech_mode,speech
         speech_mode[fbid] = True
         speech[fbid] = 'de'
 
@@ -762,7 +761,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "Enter text in French and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
             }})
-        global speech_mode,speech
         speech_mode[fbid] = True
         speech[fbid] = 'fr'
 
@@ -772,7 +770,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "Enter text in Spanish and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
             }})
-        global speech_mode,speech
         speech_mode[fbid] = True
         speech[fbid] = 'es'
 
@@ -782,7 +779,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "Enter text in Swedish and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
             }})
-        global speech_mode,speech
         speech_mode[fbid] = True
         speech[fbid] = 'sv'
 
@@ -792,7 +788,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "Enter text in Japanese and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
             }})
-        global speech_mode,speech
         speech_mode[fbid] = True
         speech[fbid] = 'ja'
 
@@ -802,7 +797,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "Enter text in Korean and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
             }})
-        global speech_mode,speech
         speech_mode[fbid] = True
         speech[fbid] = 'ko'
 
@@ -845,7 +839,6 @@ def post_facebook_message(fbid, fb_message):
                 ]
             }
         })
-        global speech, speech_mode
         speech[fbid] = ''
         speech_mode[fbid] = False
 
@@ -972,7 +965,6 @@ def post_facebook_message(fbid, fb_message):
         print("Exception: quiz not true")
 
     if "test my german" in received_message.lower():
-        global quiz_mode
         quiz_mode[fbid] = 'de'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -980,13 +972,10 @@ def post_facebook_message(fbid, fb_message):
                 "text": "What is a table called in German?"
             }
         })
-        global quiz
-        global answer
         quiz[fbid] = True
         answer[fbid] = "table"
 
     if "test my french" in received_message.lower():
-        global quiz_mode
         quiz_mode[fbid] = 'fr'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -994,13 +983,10 @@ def post_facebook_message(fbid, fb_message):
                 "text": "What is a chair called in French?"
             }
         })
-        global quiz
-        global answer
         quiz[fbid] = True
         answer[fbid] = "chair"
 
     if "test my spanish" in received_message.lower():
-        global quiz_mode
         quiz_mode[fbid] = 'es'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1008,13 +994,10 @@ def post_facebook_message(fbid, fb_message):
                 "text": "How many days are there in December?"
             }
         })
-        global quiz
-        global answer
         quiz[fbid] = True
         answer[fbid] = "thirty one"
 
     if "test my swedish" in received_message.lower():
-        global quiz_mode
         quiz_mode[fbid] = 'sv'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1022,13 +1005,10 @@ def post_facebook_message(fbid, fb_message):
                 "text": "What is apple called in Swedish?"
             }
         })
-        global quiz
-        global answer
         quiz[fbid] = True
         answer[fbid] = "apple"
 
     if "test my japanese" in received_message.lower():
-        global quiz_mode
         quiz_mode[fbid] = 'ja'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1036,13 +1016,10 @@ def post_facebook_message(fbid, fb_message):
                 "text": "What is sky called in Japanese?"
             }
         })
-        global quiz
-        global answer
         quiz[fbid] = True
         answer[fbid] = "sky"
 
     if "test my korean" in received_message.lower():
-        global quiz_mode
         quiz_mode[fbid] = 'ko'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1050,8 +1027,6 @@ def post_facebook_message(fbid, fb_message):
                 "text": "What is milk called in Korean?"
             }
         })
-        global quiz
-        global answer
         quiz[fbid] = True
         answer[fbid] = "milk"
 
@@ -1099,7 +1074,6 @@ def post_facebook_message(fbid, fb_message):
                 ]
             }
         })
-        global  quiz, quiz_mode
         score[fbid] = 0
         count[fbid] = 0
         quiz_mode[fbid] = ''
@@ -1588,7 +1562,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if received_message.lower() == "translate in german":
-        global lang
         lang[fbid] = 'de'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1621,7 +1594,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if received_message.lower() == "translate in french":
-        global lang
         lang[fbid] = 'fr'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1655,7 +1627,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if received_message.lower() == "translate in spanish":
-        global lang
         lang[fbid] = 'es'
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -1689,7 +1660,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if received_message.lower() == "translate in swedish":
-        global lang
         lang[fbid] = 'sv'
         print(lang[fbid])
         response_msg = json.dumps({
@@ -1724,7 +1694,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if "translate in japanes" in received_message.lower() :
-        global lang
         lang[fbid] = 'ja'
         print(lang[fbid])
         response_msg = json.dumps({
@@ -1759,7 +1728,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if "translate in korean" in received_message.lower() :
-        global lang
         lang[fbid] = 'ko'
         print(lang[fbid])
         response_msg = json.dumps({
@@ -1794,7 +1762,6 @@ def post_facebook_message(fbid, fb_message):
         })
 
     if received_message.lower() == "/exit translation":
-        global lang
         lang[fbid] = ''
         response_msg = json.dumps({
             "recipient": {"id": fbid},
