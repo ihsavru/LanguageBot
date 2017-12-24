@@ -9,8 +9,7 @@ from googletrans import Translator
 from questions import generate_question
 from datetime import datetime
 
-page_access_token = 'EAAUDpluM64kBAKioE52lyEh05GqtEYRpcnJZADdTwulDYRvajCPBc4OZB63BTsDmW3tLFRB7RvNPwxQ2a5oywWiI3Xn8SKcZA' \
-                    'CqpZBW0cSZCpNpP3wDr0CZA7EzSDhIYgLICD2p7TDleiLZAf71MMEugTkkmBGtyz9aTJRLYHiZATW7m8DNoohYo'
+page_access_token = '<page_access_token>'
 
 lang = {}
 quiz_mode = {}
@@ -55,16 +54,16 @@ def persistent_menu():
                     "webview_height_ratio": "full"
                 },
                 {
+                    "title": "Languages",
+                    "type": "postback",
+                    "payload": "LANGUAGE_PAYLOAD"
+                },
+                {
                     "type": "web_url",
                     "title": "Source Code",
                     "url": "https://github.com/ihsavru/LanguageBot",
                     "webview_height_ratio": "full"
                 },
-                {
-                    "title": "About",
-                    "type": "postback",
-                    "payload": "ABOUT_PAYLOAD"
-                }
             ]
         }]
     })
@@ -238,7 +237,46 @@ def handle_postbacks(fbid, postback):
             "recipient": {"id": fbid},
             "message": {
                 "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
-                        " I only know German, French, Spanish and Swedish.",
+                        " I only know German, French, Spanish, Swedish, Japanese and Korean.",
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "/German",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/French",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Spanish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Swedish",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Japanese",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "/Korean",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }})
+        return response_msg
+    if postback['payload'] == 'LANGUAGE_PAYLOAD':
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": "Following languages are currently supported:",
                 "quick_replies": [
                     {
                         "content_type": "text",
