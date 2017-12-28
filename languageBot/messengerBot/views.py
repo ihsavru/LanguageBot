@@ -9,7 +9,7 @@ from googletrans import Translator
 from questions import generate_question
 from datetime import datetime
 
-page_access_token = '<page_access_token>'
+page_access_token = ''
 
 lang = {}
 quiz_mode = {}
@@ -27,7 +27,7 @@ class messengerBotView(generic.View):
         return generic.View.dispatch(self, request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
-        if self.request.GET.get('hub.verify_token', '') == '<verify_token>':
+        if self.request.GET.get('hub.verify_token', '') == '':
             return HttpResponse(self.request.GET.get('hub.challenge'))
 
         else:
@@ -172,7 +172,7 @@ def check_answer(received_message, fbid):
     return response_msg
 
 def handle_audio(received_message,fbid):
-    url = "https://translate.google.com/translate_tts?ie=UTF-8&tl="+speech[fbid]+"-TR&client=tw-ob&q="+received_message.replace(" ","+")
+    url = "https://translate.google.com/translate_tts?ie=UTF-8&tl="+speech[fbid]+"-TR&client=tw-ob&q="+received_message.encode('utf-8').replace(" ","+")
     print(url)
     response_msg = json.dumps(
         {
@@ -195,8 +195,7 @@ def handle_postbacks(fbid, postback):
             {
                 "recipient": {"id": fbid},
                 "message": {
-                    "text": "Welcome to Language Bot! We are currently in the development phase. If you're seeing this,"
-                            " it means you have been added as a tester :) Thankyou for messaging us. To begin learning,"
+                    "text": "Welcome to Language Bot! Thankyou for messaging us. To begin learning,"
                             " choose from the following:",
                     "quick_replies": [
                         {
@@ -231,46 +230,6 @@ def handle_postbacks(fbid, postback):
                         }
                     ]}
             })
-        return response_msg
-    if postback['payload'] == 'ABOUT_PAYLOAD':
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Hi! I am a demo bot written in Python (Django). I help you to learn languages. Currently"
-                        " I only know German, French, Spanish, Swedish, Japanese and Korean.",
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "/German",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/French",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Spanish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Swedish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Japanese",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Korean",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }})
         return response_msg
     if postback['payload'] == 'LANGUAGE_PAYLOAD':
         response_msg = json.dumps({
@@ -743,8 +702,8 @@ def post_facebook_message(fbid, fb_message):
     try:
         if speech_mode[fbid] == True:
             response_msg = handle_audio(received_message,fbid)
-    except:
-        print("Speech not set")
+    except Exception as e:
+        print(e)
 
     if "pronounce in german" in received_message.lower():
         response_msg = json.dumps({
