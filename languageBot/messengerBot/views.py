@@ -420,17 +420,6 @@ def post_facebook_message(fbid, fb_message):
             "message": {
                 "text": "I was born when the third edition of LITG started!"
             }})
-    try:
-        if lang[fbid] != '':
-            message_text = translate_text(received_message, lang[fbid])
-            response_msg = json.dumps({
-                "recipient": {"id": fbid},
-                "message": {
-                    "text": message_text
-                }
-            })
-    except:
-        print("Exception: lang not set")
 
 
     if received_message.lower() == "/about bot":
@@ -482,11 +471,6 @@ def post_facebook_message(fbid, fb_message):
                         "title": "German quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
-                    {
-                        "content_type": "text",
-                        "title": "Pronounce in German",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
                 ]
             }})
 
@@ -524,11 +508,6 @@ def post_facebook_message(fbid, fb_message):
                         "title": "French quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
-                    {
-                        "content_type": "text",
-                        "title": "Pronounce in French",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
                 ]
             }})
 
@@ -566,11 +545,6 @@ def post_facebook_message(fbid, fb_message):
                         "title": "Spanish quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
-                    {
-                        "content_type": "text",
-                        "title": "Pronounce in Spanish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
                 ]
             }})
 
@@ -608,11 +582,6 @@ def post_facebook_message(fbid, fb_message):
                         "title": "Swedish quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
-                    {
-                        "content_type": "text",
-                        "title": "Pronounce in Swedish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
                 ]
             }})
 
@@ -650,11 +619,6 @@ def post_facebook_message(fbid, fb_message):
                         "title": "Japanese quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
-                    {
-                        "content_type": "text",
-                        "title": "Pronounce in Japanese",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
                 ]
             }})
 
@@ -691,115 +655,8 @@ def post_facebook_message(fbid, fb_message):
                         "title": "Korean quiz",
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     },
-                    {
-                        "content_type": "text",
-                        "title": "Pronounce in Korean",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
                 ]
             }})
-
-    try:
-        if speech_mode[fbid] == True:
-            response_msg = handle_audio(received_message,fbid)
-    except Exception as e:
-        print(e)
-
-    if "pronounce in german" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Enter text in German and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
-            }})
-        speech_mode[fbid] = True
-        speech[fbid] = 'de'
-
-    if "pronounce in french" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Enter text in French and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
-            }})
-        speech_mode[fbid] = True
-        speech[fbid] = 'fr'
-
-    if "pronounce in spanish" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Enter text in Spanish and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
-            }})
-        speech_mode[fbid] = True
-        speech[fbid] = 'es'
-
-    if "pronounce in swedish" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Enter text in Swedish and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
-            }})
-        speech_mode[fbid] = True
-        speech[fbid] = 'sv'
-
-    if "pronounce in japanes" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Enter text in Japanese and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
-            }})
-        speech_mode[fbid] = True
-        speech[fbid] = 'ja'
-
-    if "pronounce in korean" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Enter text in Korean and I will read it for you ;) To stop pronunciation, enter '/exit speech'"
-            }})
-        speech_mode[fbid] = True
-        speech[fbid] = 'ko'
-
-    if "/exit speech" in received_message.lower():
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": "Let's try something else:",
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "/German",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/French",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Spanish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Swedish",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Japanese",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "/Korean",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-        speech[fbid] = ''
-        speech_mode[fbid] = False
 
     global count, score
 
@@ -1520,208 +1377,10 @@ def post_facebook_message(fbid, fb_message):
             }
         })
 
-    if received_message.lower() == "translate in german":
-        lang[fbid] = 'de'
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type "/Exit Translation" To begin, start with any of the '
-                        'following:',
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "Good morning",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "How are you?",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": 'Have a great day!',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": '/Exit Translation',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-
-    if received_message.lower() == "translate in french":
-        lang[fbid] = 'fr'
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
-                        '"/Exit Translation" To begin, start with any of the '
-                        'following:',
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "Good morning",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "How are you?",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": 'Have a great day!',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": '/Exit Translation',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-
-    if received_message.lower() == "translate in spanish":
-        lang[fbid] = 'es'
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
-                        '"/Exit Translation" To begin, start with any of the '
-                        'following:',
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "Good morning",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "How are you?",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": 'Have a great day!',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": '/Exit Translation',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-
-    if received_message.lower() == "translate in swedish":
-        lang[fbid] = 'sv'
-        print(lang[fbid])
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
-                        '"/Exit Translation" To begin, start with any of the '
-                        'following:',
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "Good morning",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "How are you?",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": 'Have a great day!',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": '/Exit Translation',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-
-    if "translate in japanes" in received_message.lower() :
-        lang[fbid] = 'ja'
-        print(lang[fbid])
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
-                        '"/Exit Translation" To begin, start with any of the '
-                        'following:',
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "Good morning",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "How are you?",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": 'Have a great day!',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": '/Exit Translation',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-
-    if "translate in korean" in received_message.lower() :
-        lang[fbid] = 'ko'
-        print(lang[fbid])
-        response_msg = json.dumps({
-            "recipient": {"id": fbid},
-            "message": {
-                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
-                        '"/Exit Translation" To begin, start with any of the '
-                        'following:',
-                "quick_replies": [
-                    {
-                        "content_type": "text",
-                        "title": "Good morning",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": "How are you?",
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": 'Have a great day!',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    },
-                    {
-                        "content_type": "text",
-                        "title": '/Exit Translation',
-                        "payload": "<STRING_SENT_TO_WEBHOOK>"
-                    }
-                ]
-            }
-        })
-
     if received_message.lower() == "/exit translation":
         lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -1763,6 +1422,233 @@ def post_facebook_message(fbid, fb_message):
                         "payload": "<STRING_SENT_TO_WEBHOOK>"
                     }
 
+                ]
+            }
+        })
+
+    try:
+        if lang[fbid] != '':
+            message_text = translate_text(received_message, lang[fbid])
+            tts_msg = handle_audio(message_text, fbid)
+            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=tts_msg)
+            pprint(status.json())
+            response_msg = json.dumps({
+                "recipient": {"id": fbid},
+                "message": {
+                    "text": message_text
+                }
+            })
+    except:
+        print("Exception: lang not set")
+
+    if received_message.lower() == "translate in german":
+        lang[fbid] = 'de'
+        speech_mode[fbid] = True
+        speech[fbid] = 'de'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type "/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "translate in french":
+        lang[fbid] = 'fr'
+        speech_mode[fbid] = True
+        speech[fbid] = 'fr'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "translate in spanish":
+        lang[fbid] = 'es'
+        speech_mode[fbid] = True
+        speech[fbid] = 'es'
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if received_message.lower() == "translate in swedish":
+        lang[fbid] = 'sv'
+        speech_mode[fbid] = True
+        speech[fbid] = 'sv'
+        print(lang[fbid])
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if "translate in japanes" in received_message.lower() :
+        lang[fbid] = 'ja'
+        speech_mode[fbid] = True
+        speech[fbid] = 'ja'
+        print(lang[fbid])
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
+                ]
+            }
+        })
+
+    if "translate in korean" in received_message.lower() :
+        lang[fbid] = 'ko'
+        speech_mode[fbid] = True
+        speech[fbid] = 'ko'
+        print(lang[fbid])
+        response_msg = json.dumps({
+            "recipient": {"id": fbid},
+            "message": {
+                "text": 'Send what you want to translate and we will do it for you! To exit translation mode, type '
+                        '"/Exit Translation" To begin, start with any of the '
+                        'following:',
+                "quick_replies": [
+                    {
+                        "content_type": "text",
+                        "title": "Good morning",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": "How are you?",
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": 'Have a great day!',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    },
+                    {
+                        "content_type": "text",
+                        "title": '/Exit Translation',
+                        "payload": "<STRING_SENT_TO_WEBHOOK>"
+                    }
                 ]
             }
         })
