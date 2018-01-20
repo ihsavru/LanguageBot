@@ -422,6 +422,19 @@ def post_facebook_message(fbid, fb_message):
             }})
 
 
+    try:
+        if lang[fbid] != '':
+            message_text = translate_text(received_message, lang[fbid])
+            tts_msg = handle_audio(message_text, fbid)
+            response_msg = json.dumps({
+                "recipient": {"id": fbid},
+                "message": {
+                    "text": message_text
+                }
+            })
+    except:
+        print("Exception: lang not set")
+
     if received_message.lower() == "/about bot":
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -446,6 +459,7 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         quiz_mode[fbid] = ''
         quiz[fbid] = False
+        tts_msg = None
 
         response_msg = json.dumps({
             "recipient": {"id": fbid},
@@ -492,6 +506,8 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         quiz_mode[fbid] = ''
         quiz[fbid] = False
+        tts_msg = None
+
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -537,6 +553,8 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         quiz_mode[fbid] = ''
         quiz[fbid] = False
+        tts_msg = None
+
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -582,6 +600,8 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         quiz_mode[fbid] = ''
         quiz[fbid] = False
+        tts_msg = None
+
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -627,6 +647,8 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         quiz_mode[fbid] = ''
         quiz[fbid] = False
+        tts_msg = None
+
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -672,6 +694,8 @@ def post_facebook_message(fbid, fb_message):
         count[fbid] = 0
         quiz_mode[fbid] = ''
         quiz[fbid] = False
+        tts_msg = None
+
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -1430,6 +1454,7 @@ def post_facebook_message(fbid, fb_message):
         lang[fbid] = ''
         speech_mode[fbid] = False
         speech[fbid] = ''
+        tts_msg = None
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -1474,21 +1499,6 @@ def post_facebook_message(fbid, fb_message):
                 ]
             }
         })
-
-    try:
-        if lang[fbid] != '':
-            message_text = translate_text(received_message, lang[fbid])
-            tts_msg = handle_audio(message_text, fbid)
-            status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=tts_msg)
-            pprint(status.json())
-            response_msg = json.dumps({
-                "recipient": {"id": fbid},
-                "message": {
-                    "text": message_text
-                }
-            })
-    except:
-        print("Exception: lang not set")
 
     if received_message.lower() == "translate in german":
         lang[fbid] = 'de'
@@ -1745,7 +1755,11 @@ def post_facebook_message(fbid, fb_message):
                     }
                 ]
             }})
-
+    try:
+        status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=tts_msg)
+        pprint(status.json())
+    except:
+        print("Language changed")
     status = requests.post(post_message_url, headers={"Content-Type": "application/json"}, data=response_msg)
     pprint(status.json())
 
