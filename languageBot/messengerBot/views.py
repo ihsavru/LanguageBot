@@ -117,7 +117,7 @@ def translate_text(received_message, destination):
 
 def translate_answer(received_message, source, destination ):
     translator = Translator()
-    if translator.detect(received_message).lang == 'en':
+    if len(received_message.split())>1 and translator.detect(received_message).lang != source:
         answer_text = 'aaaa'
     else:
         answer_text = translator.translate(received_message, src=source,dest=destination).text
@@ -438,6 +438,15 @@ def post_facebook_message(fbid, fb_message):
             }})
 
     if received_message.lower() == "/german":
+        #initialise variables
+        lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
+        score[fbid] = 0
+        count[fbid] = 0
+        quiz_mode[fbid] = ''
+        quiz[fbid] = False
+
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -475,6 +484,14 @@ def post_facebook_message(fbid, fb_message):
             }})
 
     if received_message.lower() == "/french":
+        #initialise variables
+        lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
+        score[fbid] = 0
+        count[fbid] = 0
+        quiz_mode[fbid] = ''
+        quiz[fbid] = False
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -512,6 +529,14 @@ def post_facebook_message(fbid, fb_message):
             }})
 
     if received_message.lower() == "/spanish":
+        # initialise variables
+        lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
+        score[fbid] = 0
+        count[fbid] = 0
+        quiz_mode[fbid] = ''
+        quiz[fbid] = False
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -549,6 +574,14 @@ def post_facebook_message(fbid, fb_message):
             }})
 
     if received_message.lower() == "/swedish":
+        # initialise variables
+        lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
+        score[fbid] = 0
+        count[fbid] = 0
+        quiz_mode[fbid] = ''
+        quiz[fbid] = False
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -586,6 +619,14 @@ def post_facebook_message(fbid, fb_message):
             }})
 
     if received_message.lower() == "/japanese":
+        # initialise variables
+        lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
+        score[fbid] = 0
+        count[fbid] = 0
+        quiz_mode[fbid] = ''
+        quiz[fbid] = False
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
@@ -623,6 +664,14 @@ def post_facebook_message(fbid, fb_message):
             }})
 
     if received_message.lower() == "/korean":
+        # initialise variables
+        lang[fbid] = ''
+        speech_mode[fbid] = False
+        speech[fbid] = ''
+        score[fbid] = 0
+        count[fbid] = 0
+        quiz_mode[fbid] = ''
+        quiz[fbid] = False
         response_msg = json.dumps({
             "recipient": {"id": fbid},
             "message": {
